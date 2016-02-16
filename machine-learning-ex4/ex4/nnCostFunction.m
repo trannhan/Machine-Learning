@@ -1,4 +1,4 @@
-function [J grad] = nnCostFunction(nn_params, ...
+function [J, grad] = nnCostFunction(nn_params, ...
                                    input_layer_size, ...
                                    hidden_layer_size, ...
                                    num_labels, ...
@@ -62,10 +62,9 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
-I = eye(num_labels);
 Y = zeros(m, num_labels);
 for i=1:m
-  Y(i, :)= I(y(i), :);
+  Y(i, y(i))= 1;
 end
 
 a1 = [ones(m, 1) X];
@@ -75,13 +74,13 @@ z3 = a2*Theta2';
 a3 = sigmoid(z3);
 h = a3;
 
-penalty = (lambda/(2*m))*(sum(sum(Theta1(:, 2:end).^2, 2)) + sum(sum(Theta2(:,2:end).^2, 2)));
+regularize = (lambda/(2*m))*(sum(sum(Theta1(:, 2:end).^2, 2)) + sum(sum(Theta2(:,2:end).^2, 2)));
 
 J = (1/m)*sum(sum((-Y).*log(h) - (1-Y).*log(1-h), 2));
-J = J + penalty;
+J = J + regularize;
 
 delta3 = a3 - Y;
-delta2 = (delta3*Theta2 .* sigmoidGradient([ones(size(z2, 1), 1) z2]));
+delta2 = (delta3*Theta2.*sigmoidGradient([ones(size(z2, 1), 1) z2]));
 delta2 = delta2(:, 2:end);
 
 delta_1 = delta2'*a1;
